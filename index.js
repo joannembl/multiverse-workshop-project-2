@@ -90,7 +90,7 @@ app.post('/login', async (req, res, next) => {
 });
 
 // GET /cars/:id
-// TODO - takes an id and returns the cat with that id
+// TODO - takes an id and returns the car with that id
 app.get('/cars/:id', setUser, async (req, res, next) => {
   const car = await Car.findByPk(req.params.id);
   if(!req.user) {
@@ -111,6 +111,32 @@ app.get('/cars/:id', setUser, async (req, res, next) => {
       transmission: car.transmission,
       engine: car.engine,
       badge: car.badge,
+    });
+  }
+})
+
+// GET /cars
+// TODO - takes a logged in user and returns all cars
+app.get('/cars', setUser, async (req, res, next) => {
+  const cars = await Car.findAll();
+  if(!req.user) {
+    res.sendStatus(401);
+  } else {
+    res.status(200).send({
+      cars
+    });
+  }
+})
+
+// GET /users
+// TODO - takes a logged in user and returns all cars
+app.get('/users', setUser, async (req, res, next) => {
+  const users = await User.findAll();
+  if(!req.user) {
+    res.sendStatus(401);
+  } else {
+    res.status(200).send({
+      users
     });
   }
 })
@@ -142,7 +168,7 @@ app.post('/cars', setUser, async (req, res, next) => {
 });
 
 // DELETE /cars/:id
-// TODO - takes an id and deletes the cat with that id
+// TODO - takes an id and deletes the car with that id
 app.delete('/cars/:id', setUser, async (req, res, next) => {
   const car = await Car.findByPk(req.params.id);
   if(!req.user) {
