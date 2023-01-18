@@ -3,8 +3,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "seed": "node db/seed.js",
     "start": "node server.js",
-    "start-dev": "nodemon server.js",
+    "start-dev": "node db/seed.js && nodemon server.js",
     "test": "jest --watch-all"
   },
   "keywords": [],
