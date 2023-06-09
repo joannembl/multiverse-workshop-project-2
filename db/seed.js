@@ -3,7 +3,7 @@ const seed = require('./seedFn');
 
 seed()
   .then(() => {
-    console.log('Seeding success. Laughs on!');
+    console.log('Seeding success!');
   })
   .catch(err => {
     console.error(err);

@@ -12,7 +12,7 @@ const Car = sequelize.define('car', {
   fuelType: Sequelize.STRING,
   transmission: Sequelize.STRING,
   engine: Sequelize.STRING,
-  badge: Sequelize.STRING
+  badge: Sequelize.STRING,
 });
 
 module.exports = { Car };

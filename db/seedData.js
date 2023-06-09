@@ -11,7 +11,8 @@ const cars = [
     fuelType: "Gasoline",
     transmission: "6-Speed Manual",
     engine: "2.0L I4 16V MPFI DOHC Turbo",
-    badge: "Old"
+    badge: "Old",
+    userId: 1
   },
   {
     category: "Truck",
@@ -25,7 +26,8 @@ const cars = [
     fuelType: "Gasoline",
     transmission: "6-Speed Automatic",
     engine: "5.7L V8 32V MPFI DOHC",
-    badge: "New"
+    badge: "New",
+    userId: 2
   },
   {
     category: "Sedan",
@@ -39,7 +41,8 @@ const cars = [
     fuelType: "Gasoline",
     transmission: "4-Speed Manual",
     engine: "2.0-liter 8-valve I-4 With SOHC",
-    badge: "Classic"
+    badge: "Classic",
+    userId: 3
   },
   {
     category: "Sedan",
@@ -53,7 +56,8 @@ const cars = [
     fuelType: "Gasoline",
     transmission: "5-Speed Manual",
     engine: "3.0L V6 24V MPFI DOHC",
-    badge: "Old"
+    badge: "Old",
+    userId: 4
   },
 ];
 
@@ -69,7 +73,12 @@ const users = [
   {
     username: "buttercup",
     password: "greengal"
-  }
+  },
+  {
+    username: "bellamy",
+    password: "pitbull",
+    role: "admin"
+  },
 ]
 
 module.exports = {

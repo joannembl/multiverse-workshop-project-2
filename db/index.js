@@ -2,8 +2,8 @@ const {Car} = require('./Car');
 const {User} = require('./User');
 const {sequelize, Sequelize} = require('./db');
 
-Car.belongsTo(User, {foreignKey: 'ownerId'}); // Car table, there will be an ownerId <- FK
 User.hasMany(Car);
+Car.belongsTo(User, { targetKey: 'id', foreignKey: 'userId' } ); 
 
 module.exports = {
     Car,

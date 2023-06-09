@@ -12,7 +12,7 @@ app.get('/', async (req, res, next) => {
   try {
     res.send(`
       <h1>Welcome to Convenient Auto Report!</h1>
-      <p>Cars are available at <a href="/cars/1">/cars/:id</a></p>
+      <p>Cars are available at <a href="/cars">/cars</a></p>
       <p>Create a new car at <b><code>POST /cars</code></b> and delete one at <b><code>DELETE /cars/:id</code></b></p>
       <p>Log in via POST /login or register via POST /register</p>
     `);
@@ -74,7 +74,7 @@ app.post('/login', async (req, res, next) => {
   try {
     const {username, password} = req.body;
     const user = await User.findOne({where: {username}});
-    const matching = bcrypt.compare(password, user.password);
+   const matching = await bcrypt.compare(password, user.password);
     if(matching) {
       const {id, username} = user;
       const token = jwt.sign({
@@ -95,9 +95,9 @@ app.get('/cars/:id', setUser, async (req, res, next) => {
   const car = await Car.findByPk(req.params.id);
   if(!req.user) {
     res.sendStatus(401);
-  } else if(req.user.id !== car.id) {
-    res.sendStatus(401);
-  } else {
+  } else if(req.user.id !== car.userId) {
+    res.status(401).send({ message: 'User not authorized to view car'});
+  } else if(req.user.id === car.userId) {
     res.status(200).send({
       category: car.category,
       year: car.year,
@@ -121,7 +121,9 @@ app.get('/cars', setUser, async (req, res, next) => {
   const cars = await Car.findAll();
   if(!req.user) {
     res.sendStatus(401);
-  } else {
+  } else if (req.user.role !== 'admin') {
+    res.status(400).send({ message: 'User not authorized to access' })
+  } else if (req.user.role === 'admin') {
     res.status(200).send({
       cars
     });
@@ -134,7 +136,9 @@ app.get('/users', setUser, async (req, res, next) => {
   const users = await User.findAll();
   if(!req.user) {
     res.sendStatus(401);
-  } else {
+  } else if (req.user.role !== 'admin') {
+    res.status(400).send({ message: 'User not authorized to access' })
+  } else if (req.user.role === 'admin') {
     res.status(200).send({
       users
     });
@@ -149,21 +153,39 @@ app.post('/cars', setUser, async (req, res, next) => {
     res.sendStatus(401);
   } else {
     const {category, year, make, model, color, image, drivetrain, mpg, fuelType, transmission, engine, badge} = req.body;
-    const newCar = await Car.create({category, year, make, model, color, image, drivetrain, mpg, fuelType, transmission, engine, badge});
-    res.status(201).send({
-      category: newCar.category,
-      year: newCar.year,
-      make: newCar.make,
-      model: newCar.model,
-      color: newCar.color,
-      image: newCar.image,
-      drivetrain: newCar.drivetrain,
-      mpg: newCar.mpg,
-      fuelType: newCar.fuelType,
-      transmission: newCar.transmission,
-      engine: newCar.engine,
-      badge: newCar.badge,
+    const newCar = await Car.create({category, year, make, model, color, image, drivetrain, mpg, fuelType, transmission, engine, badge, userId: req.user.id});
+    res.status(201).send({newCar});
+  }
+});
+
+// POST /cars/:id
+// TODO - takes req.body of {category, year, make, model, color, image, drivetrain, mpg, fuelType, transmission, engine, badge} 
+// and updates car with the given category, year, make, model, color, image, drivetrain, mpg, fuelType, transmission, engine, badge
+app.post('/cars/:id', setUser, async (req, res, next) => {
+  const carToUpdate = await Car.findByPk(req.params.id);
+
+  if(!req.user) {
+    res.sendStatus(401);
+    return;
+  } else if (carToUpdate.userId !== req.user.id && req.user.role !== 'admin') {
+    res.status(401).send({
+      message: 'User does not have access to update'
     });
+    return;
+  }
+  
+  if (!carToUpdate) {
+    res.status(400).send({
+      message: 'Car not found',
+    })
+    return;
+  } else if (carToUpdate.userId === req.user.id) {
+    const updatedCar = await carToUpdate.update(req.body)
+    res.status(200).send({
+      updatedCar,
+      message: "Car successfully updated",
+    });
+    return;
   }
 });
 
@@ -173,11 +195,16 @@ app.delete('/cars/:id', setUser, async (req, res, next) => {
   const car = await Car.findByPk(req.params.id);
   if(!req.user) {
     res.sendStatus(401);
-  } else if(req.user.id !== car.id) {
-    res.sendStatus(401);
-  } else {
+    return;
+  } else if (car.userId !== req.user.id && req.user.role !== 'admin') {
+    res.status(401).send({
+      message: 'User does not have access to delete'
+    });
+    return;
+  } else if (car.userId === req.user.id) {
     await car.destroy();
-    res.status(204).send({message: 'Successfully deleted'});
+    res.status(200).send({message: 'Successfully Deleted!'});
+    return;
   }
 })
 
